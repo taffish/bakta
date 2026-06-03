@@ -4,7 +4,7 @@ TAFFISH wrapper for [Bakta](https://github.com/oschwengers/bakta), a rapid and
 standardized annotation tool for bacterial genomes, plasmids, and
 metagenome-assembled genomes (MAGs).
 
-This app packages Bakta `1.12.0-r1` using the official upstream
+This app packages Bakta `1.12.0-r2` using the official upstream
 `oschwengers/bakta:v1.12.0` Docker image as the base runtime. Bakta is a
 database-driven annotator: the software is packaged in the image, but the
 production Bakta database is intentionally external.
@@ -13,9 +13,9 @@ production Bakta database is intentionally external.
 
 - name: `bakta`
 - command: `taf-bakta`
-- version: `1.12.0-r1`
+- version: `1.12.0-r2`
 - kind: `tool`
-- image: `ghcr.io/taffish/bakta:1.12.0-r1`
+- image: `ghcr.io/taffish/bakta:1.12.0-r2`
 - upstream: Bakta tag `v1.12.0`
 - runtime version: `bakta 1.12.0`
 - required database schema: `6`
@@ -37,7 +37,7 @@ taf install bakta
 Install the exact release:
 
 ```sh
-taf install bakta 1.12.0-r1
+taf install bakta 1.12.0-r2
 ```
 
 For local testing before this app is published to the public index:
@@ -53,9 +53,10 @@ annotation. This TAFFISH image does not bundle the production database because
 the database is large, versioned scientific data and should live in a
 persistent project or site data directory.
 
-Bakta `1.12.0` requires database schema `6`. `bakta_db list` currently reports
-database `6.0` from Zenodo record `14916843` as compatible. Upstream documents
-two database types:
+Bakta `1.12.0` requires database schema `6`. Upstream currently documents
+database `6.0` from Zenodo record `14916843` as compatible. `bakta_db list`,
+`download`, and `update` consult online database metadata and therefore need
+network access. Upstream documents two database types:
 
 - `light`: smaller and faster; upstream documents about 1.3 GB compressed and
   3.9 GB uncompressed for DB `6.0`
@@ -266,15 +267,16 @@ The smoke checks validate:
 - Bakta `1.12.0` version/help output
 - helper CLIs: `bakta_db`, `bakta_proteins`, `bakta_plot`, `bakta_io`
 - Python module version and required database schema `6`
-- current compatible DB listing includes `6.0`
+- `bakta_db --version` and the built-in required DB schema `6`
 - representative runtime dependencies are available
 - a tiny FASTA call fails cleanly when `--db` points to a missing database and
   does not create annotation outputs
 
-The smoke does not download a full Bakta database or run a production
-annotation, because the database is large and external by design. Functional
-validation of biological annotation should be done with a chosen `light` or
-`full` Bakta DB and a project-appropriate bacterial or plasmid input.
+The smoke is intentionally offline-safe. It does not call `bakta_db list`,
+download a full Bakta database, or run a production annotation, because the
+database is large and external by design. Functional validation of biological
+annotation should be done with a chosen `light` or `full` Bakta DB and a
+project-appropriate bacterial or plasmid input.
 
 ## Boundaries
 

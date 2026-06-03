@@ -1,11 +1,11 @@
-taf-bakta 1.12.0-r1
+taf-bakta 1.12.0-r2
 
 TAFFISH tool app for Bakta 1.12.0. The default upstream command is bakta.
 
 Important database note:
   Real annotation requires a compatible Bakta database. The production database
-  is not bundled. Bakta 1.12.0 requires database schema 6; bakta_db list
-  currently reports compatible DB 6.0.
+  is not bundled. Bakta 1.12.0 requires database schema 6. bakta_db list,
+  download, and update need network access for online database metadata.
 
 Usage:
   taf-bakta --help

@@ -17,8 +17,7 @@ RUN set -eux; \
     bakta --version 2>&1 | grep -F "bakta 1.12.0" >/dev/null; \
     bakta --help 2>&1 | grep -F "usage: bakta" >/dev/null; \
     bakta_db --help 2>&1 | grep -F "{list,download,install,update}" >/dev/null; \
-    bakta_db list 2>&1 | grep -F "Required database schema version: 6" >/dev/null; \
-    bakta_db list 2>&1 | grep -F "6.0" >/dev/null; \
+    bakta_db --version 2>&1 | grep -F "bakta_db 1.12.0" >/dev/null; \
     bakta_proteins --help 2>&1 | grep -F "usage: bakta_proteins" >/dev/null; \
     bakta_plot --help 2>&1 | grep -F "usage: bakta_plot" >/dev/null; \
     bakta_io --help 2>&1 | grep -F "usage: bakta_io" >/dev/null; \
