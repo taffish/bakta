@@ -1,10 +1,10 @@
-taf-bakta 1.12.0-r2
+taf-bakta 1.12.1-r1
 
-TAFFISH tool app for Bakta 1.12.0. The default upstream command is bakta.
+TAFFISH tool app for Bakta 1.12.1. The default upstream command is bakta.
 
 Important database note:
   Real annotation requires a compatible Bakta database. The production database
-  is not bundled. Bakta 1.12.0 requires database schema 6. bakta_db list,
+  is not bundled. Bakta 1.12.1 requires database schema 6. bakta_db list,
   download, and update need network access for online database metadata.
 
 Usage:
@@ -55,7 +55,7 @@ Regenerate outputs or plots from JSON:
 
 Helper and dependency commands:
   bakta_db, bakta_proteins, bakta_plot, bakta_io, diamond, blastn, makeblastdb,
-  amrfinder, tRNAscan-SE, aragorn, cmscan, pilercr
+  amrfinder, amrfinder_update, tRNAscan-SE, aragorn, cmscan, pilercr
 
 Inputs:
   Bakta is designed for bacterial genomes, plasmids, and MAGs. It accepts FASTA
@@ -71,7 +71,8 @@ Typical genome outputs:
 Boundaries:
   The Bakta database, AMRFinderPlus database content, input genomes, submission
   templates, and project reports are not included. Runtime database downloads
-  require network access and a persistent writable host directory.
+  require network access and a persistent writable host directory. A reduced
+  upstream test DB is bundled only for smoke and is not suitable for analysis.
 
 Platform:
   Native container platform is linux/amd64. Docker and Podman runs request
