@@ -1,0 +1,6 @@
+{
+  "artifact": "taf-bakta-v1.12.2-r1",
+  "schema": "taffish.build/v1",
+  "source_sha256": "cc5c37f0e38eb5befa3e9dcc68c18a11895e624c6a1b17899e129f709aa077fc",
+  "wrapper_sha256": "219ae2a9c33bdbc57a4776cb332953b4917dfc78dd0b66e71a92e92a15dd32d0"
+}

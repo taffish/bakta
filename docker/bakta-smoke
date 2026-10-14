@@ -1,0 +1,111 @@
+#!/opt/conda/bin/python3
+"""Independent offline smoke stages; every write is confined to private /tmp."""
+import json
+import os
+from pathlib import Path
+import signal
+import socket
+import subprocess
+import sys
+import tempfile
+import time
+import urllib.request
+
+def run(stage, argv, env, root):
+    log = root/(stage+'.log')
+    with log.open('wb') as stream:
+        result = subprocess.run(argv, stdout=stream, stderr=subprocess.STDOUT, env=env)
+    text = log.read_text(errors='replace')
+    if result.returncode:
+        raise RuntimeError(f'{stage}: exit={result.returncode}\n{text[-24000:]}')
+    return text
+
+def main():
+    mode = sys.argv[1]
+    with tempfile.TemporaryDirectory(prefix='bakta-smoke-') as tmp:
+        root = Path(tmp)
+        env = dict(os.environ, HOME=tmp, TMPDIR=tmp, MPLCONFIGDIR=tmp+'/mpl', XDG_CACHE_HOME=tmp+'/cache')
+        os.environ.update(env)
+        if mode == 'identity':
+            assert run('version',['bakta','--version'],env,root).strip() == 'bakta 1.12.2'
+            for cmd in ('bakta','bakta_db','bakta_proteins','bakta_plot','bakta_io','bakta-download-db-6.0','bakta-viewer'):
+                assert 'usage:' in run(cmd,[cmd,'--help'],env,root).lower()
+            import bakta
+            from bakta import plot
+            assert bakta.__version__ == '1.12.2' and bakta.__db_schema_version__ == 6
+            assert len(plot.calc_gc_content('G')[0]) and len(plot.calc_gc_skew('G')[0])
+            run('pip-check',['python3','-m','pip','check'],env,root)
+            provenance = Path('/opt/taffish/bakta/source.txt').read_text()
+            assert 'commit=18be6c2b75d6ef708da4a1edf1dd37dbdd899b12' in provenance
+            assert 'source_sha256=828afd3b4f7dcb0ebb51e12c8daecfe9258262b52d3c01db8ea23413c4bf1e05' in provenance
+        elif mode == 'dependencies':
+            checks = [('diamond','version','diamond version 2.2.0'),('blastn','-version','blastn: 2.17.0'),
+                ('makeblastdb','-version','makeblastdb: 2.17.0'),('amrfinder','--version','4.2.7'),
+                ('amrfinder_update','--version','4.2.7'),('tRNAscan-SE','-h','tRNAscan-SE 2.0.12'),
+                ('aragorn','-h','ARAGORN v1.2.41'),('cmscan','-h','INFERNAL 1.1.5'),('pilercr','-version','pilercr v1.06')]
+            for cmd, arg, expected in checks:
+                assert expected in run(cmd,[cmd,arg],env,root)
+        elif mode in ('core','meta'):
+            fixture = '/opt/taffish/bakta/testdata/'
+            argv = ['bakta','--db',fixture+'db-light','--output',tmp+'/out','--prefix','tiny',
+                    '--threads','2','--complete','--proteins',fixture+'user-proteins.faa',fixture+'input.fna']
+            if mode == 'meta':
+                argv.insert(1,'--meta')
+            assert 'Annotation successfully finished' in run(mode,argv,env,root)
+            out = root/'out'
+            for suffix in ('json','gff3','gbff','embl','txt','png','svg'):
+                assert (out/('tiny.'+suffix)).stat().st_size > 0, suffix
+            result = json.loads((out/'tiny.json').read_text())
+            assert result['version']['bakta'] == '1.12.2' and result['sequences']
+            assert len([f for f in result['features'] if f['type'] == 'cds']) == 3, 'expected three real CDS annotations'
+            assert (out/'tiny.png').read_bytes().startswith(b'\x89PNG\r\n\x1a\n')
+            run('plot',['bakta_plot','--output',tmp+'/plot','--prefix','roundtrip',str(out/'tiny.json')],env,root)
+            run('io',['bakta_io','--output',tmp+'/io','--prefix','roundtrip',str(out/'tiny.json')],env,root)
+            assert (root/'plot/roundtrip.svg').stat().st_size > 0
+            assert (root/'io/roundtrip.gff3').stat().st_size > 0
+        elif mode == 'negative':
+            result = subprocess.run(['bakta','--db',tmp+'/missing','--output',tmp+'/out',
+                '/opt/taffish/bakta/testdata/input.fna'],env=env,capture_output=True,text=True)
+            assert result.returncode and 'database' in (result.stdout+result.stderr).lower()
+            assert not (root/'out').exists() or not list((root/'out').glob('*.gff3'))
+        elif mode == 'resources':
+            for kind in ('light','full'):
+                record = json.loads(run(kind,['bakta-download-db-6.0','--db-root',tmp+'/db','--type',kind,'--dry-run'],env,root))
+                assert record['selection']['identity'] == '6.0-amr2026-08-07.1'
+                assert record['selection']['type'] == kind
+                assert not (root/'db').exists()
+        elif mode == 'viewer':
+            with socket.socket() as s:
+                s.bind(('127.0.0.1',0))
+                port = s.getsockname()[1]
+            with (root/'viewer.log').open('w') as stream:
+                p = subprocess.Popen(['bakta-viewer','--port',str(port)],stdout=stream,stderr=subprocess.STDOUT,env=env)
+                try:
+                    deadline = time.monotonic()+15
+                    while time.monotonic() < deadline:
+                        assert p.poll() is None, (root/'viewer.log').read_text()
+                        if 'bakta-viewer ready' in (root/'viewer.log').read_text():
+                            break
+                        time.sleep(.1)
+                    else:
+                        raise RuntimeError('viewer readiness timeout')
+                    with urllib.request.urlopen(f'http://127.0.0.1:{port}/',timeout=3) as reply:
+                        assert reply.status == 200 and b'type="module"' in reply.read()
+                        assert "connect-src 'self' blob:" in reply.headers['Content-Security-Policy']
+                    p.send_signal(signal.SIGTERM)
+                    assert p.wait(timeout=5) == 143
+                    log = (root/'viewer.log').read_text()
+                    assert log.index('starting') < log.index('ready') < log.index('stopped')
+                finally:
+                    if p.poll() is None:
+                        p.kill(); p.wait()
+        else:
+            raise ValueError('unknown smoke mode')
+        print('PASS '+mode)
+
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as error:
+        print('bakta-smoke: '+str(error),file=sys.stderr)
+        sys.exit(1)

@@ -1,7 +1,7 @@
 [package]
 name = "bakta"
 kind = "tool"
-version = "1.12.1"
+version = "1.12.2"
 release = 1
 license = "Apache-2.0"
 main = "src/main.taf"
@@ -17,7 +17,7 @@ pipe = true
 command_mode = true
 
 [container]
-image = "ghcr.io/taffish/bakta:1.12.1-r1"
+image = "ghcr.io/taffish/bakta:1.12.2-r1"
 dockerfile = "docker/Dockerfile"
 build_platforms = "linux/amd64"
 
@@ -25,17 +25,17 @@ build_platforms = "linux/amd64"
 domain = "bio"
 categories = ["genome-annotation", "prokaryotic-genomics", "bacterial-genomics", "plasmid-annotation", "functional-annotation"]
 keywords = ["bakta", "bacterial-genome-annotation", "prokaryotic-annotation", "plasmid", "mag", "gff3", "genbank", "amrfinder", "diamond", "trnascan-se", "aragorn", "infernal"]
-description = "Bakta 1.12.1 runtime for rapid standardized bacterial, plasmid, and MAG annotation. Production Bakta databases are mandatory and user-provided via --db or BAKTA_DB."
+description = "Bakta 1.12.2 bacterial, plasmid and MAG annotation with an explicit fixed-database installer and a local-only Bakta Web result viewer. Production databases remain external and explicitly selected."
 
 [upstream]
 name = "Bakta"
 type = "github"
 repo = "oschwengers/bakta"
 homepage = "https://bakta.readthedocs.io/"
-release_url = "https://github.com/oschwengers/bakta/releases/tag/v1.12.1"
-downloads = "https://codeload.github.com/oschwengers/bakta/tar.gz/refs/tags/v1.12.1; docker://oschwengers/bakta:v1.12.0@sha256:4cb7c3f8327483d661013b5bcbb33f0dc71119d661c4c887ec1dce6d81542c60; https://conda.anaconda.org/bioconda/linux-64/diamond-2.2.0-he361c42_0.conda; https://files.pythonhosted.org/packages/a3/dc/17031897dae0efacfea57dfd3a82fdd2a2aeb58e0ff71b77b87e44edc772/setuptools-80.9.0-py3-none-any.whl; https://files.pythonhosted.org/packages/0b/2c/87f3254fd8ffd29e4c02732eee68a83a1d3c346ae39bc6822dcbcb697f2b/wheel-0.45.1-py3-none-any.whl"
-version = "1.12.1"
-commit = "2cb1a7dd38a3f25690f358a717f88ec5e84907aa"
+release_url = "https://github.com/oschwengers/bakta/releases/tag/v1.12.2"
+downloads = "https://codeload.github.com/oschwengers/bakta/tar.gz/refs/tags/v1.12.2; docker://oschwengers/bakta:v1.12.0@sha256:4cb7c3f8327483d661013b5bcbb33f0dc71119d661c4c887ec1dce6d81542c60; https://conda.anaconda.org/bioconda/linux-64/diamond-2.2.0-he361c42_0.conda; https://files.pythonhosted.org/packages/a3/dc/17031897dae0efacfea57dfd3a82fdd2a2aeb58e0ff71b77b87e44edc772/setuptools-80.9.0-py3-none-any.whl; https://files.pythonhosted.org/packages/0b/2c/87f3254fd8ffd29e4c02732eee68a83a1d3c346ae39bc6822dcbcb697f2b/wheel-0.45.1-py3-none-any.whl"
+version = "1.12.2"
+commit = "18be6c2b75d6ef708da4a1edf1dd37dbdd899b12"
 license = "GPL-3.0"
 citation = "Schwengers et al. 2021"
 doi = "10.1099/mgen.0.000685"
@@ -45,5 +45,5 @@ strip_prefix = "v"
 [smoke]
 backend = "docker"
 timeout = 300
-exist = ["bakta", "bakta_db", "bakta_proteins", "bakta_plot", "bakta_io", "python3", "diamond", "blastn", "makeblastdb", "amrfinder", "amrfinder_update", "tRNAscan-SE", "aragorn", "cmscan", "cmpress", "pilercr"]
-test = ["bakta --version 2>&1 | grep -Fx 'bakta 1.12.1' >/dev/null && bakta --help 2>&1 | grep -F 'usage: bakta' >/dev/null && bakta_db --help 2>&1 | grep -F '{list,download,install,update}' >/dev/null && bakta_proteins --help 2>&1 | grep -F 'usage: bakta_proteins' >/dev/null && bakta_plot --help 2>&1 | grep -F 'usage: bakta_plot' >/dev/null && bakta_io --help 2>&1 | grep -F 'usage: bakta_io' >/dev/null", "python3 -c 'import bakta; from bakta import plot; assert bakta.__version__ == \"1.12.1\"; assert bakta.__db_schema_version__ == 6; assert len(plot.calc_gc_content(\"G\")[0]) > 0; assert len(plot.calc_gc_skew(\"G\")[0]) > 0' && bakta_db --version 2>&1 | grep -Fx 'bakta_db 1.12.1' >/dev/null && python3 -m pip check && grep -Fx 'commit=2cb1a7dd38a3f25690f358a717f88ec5e84907aa' /opt/taffish/bakta/source.txt >/dev/null && grep -Fx 'source_sha256=3e43e4763f71c125ed992abaf7809c9e54f981fc13d52bbd16d0c818178a3b7f' /opt/taffish/bakta/source.txt >/dev/null && grep -Fx 'diamond_package_sha256=c5ff249ab7655a6b79c1de0fdeeba8ebfa640b81a9f6a9a6588a15508abe34a9' /opt/taffish/bakta/source.txt >/dev/null", "diamond version 2>&1 | grep -F 'diamond version 2.2.0' >/dev/null && blastn -version 2>&1 | grep -F 'blastn: 2.17.0' >/dev/null && makeblastdb -version 2>&1 | grep -F 'makeblastdb: 2.17.0' >/dev/null && amrfinder --version 2>&1 | grep -Fx '4.2.7' >/dev/null && amrfinder_update --version 2>&1 | grep -Fx '4.2.7' >/dev/null && tRNAscan-SE -h 2>&1 | grep -F 'tRNAscan-SE 2.0.12' >/dev/null && aragorn -h 2>&1 | grep -F 'ARAGORN v1.2.41' >/dev/null && cmscan -h 2>&1 | grep -F 'INFERNAL 1.1.5' >/dev/null && pilercr -h 2>&1 | grep -F 'pilercr v1.06' >/dev/null", "tmp=/tmp/taf-bakta-positive-$$; rm -rf \"$tmp\"; bakta --db /opt/taffish/bakta/testdata/db-light --output \"$tmp/out\" --prefix test --min-contig-length 200 --proteins /opt/taffish/bakta/testdata/user-proteins.faa --skip-tmrna --skip-trna --skip-rrna --skip-ncrna --skip-ncrna-region --skip-crispr --skip-cds --skip-sorf --skip-ori --skip-gap /opt/taffish/bakta/testdata/input.fna > \"$tmp.log\" 2>&1 && test -s \"$tmp/out/test.json\" && test -s \"$tmp/out/test.gff3\" && test -s \"$tmp/out/test.png\" && test -s \"$tmp/out/test.svg\" && grep -F 'Annotation successfully finished' \"$tmp.log\" >/dev/null && python3 -c 'import json; data=json.load(open(\"'$tmp'/out/test.json\")); assert data[\"version\"][\"bakta\"] == \"1.12.1\"; assert data[\"features\"] == []' && rm -rf \"$tmp\" \"$tmp.log\"", "tmp=/tmp/taf-bakta-smoke-$$; rm -rf \"$tmp\"; mkdir -p \"$tmp\"; printf '>tiny\\nATGAAATAA\\n' > \"$tmp/tiny.fa\"; if bakta --db \"$tmp/no-db\" --output \"$tmp/out\" --prefix tiny \"$tmp/tiny.fa\" > \"$tmp/run.log\" 2>&1; then cat \"$tmp/run.log\" >&2; exit 1; fi; grep -Ei 'database|db' \"$tmp/run.log\" >/dev/null; test ! -e \"$tmp/out/tiny.gff3\"; rm -rf \"$tmp\""]
+exist = ["bakta", "bakta_db", "bakta_proteins", "bakta_plot", "bakta_io", "python3", "diamond", "blastn", "makeblastdb", "amrfinder", "amrfinder_update", "amrfinder_index", "tRNAscan-SE", "aragorn", "cmscan", "cmpress", "pilercr", "bakta-download-db-6.0", "bakta-viewer", "bakta-smoke"]
+test = ["bakta-smoke identity", "bakta-smoke dependencies", "bakta-smoke core", "bakta-smoke meta", "bakta-smoke negative", "bakta-smoke resources", "bakta-smoke viewer"]

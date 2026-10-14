@@ -1,0 +1,49 @@
+[package]
+name = "bakta"
+kind = "tool"
+version = "1.12.2"
+release = 1
+license = "Apache-2.0"
+main = "src/main.taf"
+
+[repository]
+url = "https://github.com/taffish/bakta"
+
+[command]
+name = "taf-bakta"
+
+[runtime]
+pipe = true
+command_mode = true
+
+[container]
+image = "ghcr.io/taffish/bakta:1.12.2-r1"
+dockerfile = "docker/Dockerfile"
+build_platforms = "linux/amd64"
+
+[meta]
+domain = "bio"
+categories = ["genome-annotation", "prokaryotic-genomics", "bacterial-genomics", "plasmid-annotation", "functional-annotation"]
+keywords = ["bakta", "bacterial-genome-annotation", "prokaryotic-annotation", "plasmid", "mag", "gff3", "genbank", "amrfinder", "diamond", "trnascan-se", "aragorn", "infernal"]
+description = "Bakta 1.12.2 bacterial, plasmid and MAG annotation with an explicit fixed-database installer and a local-only Bakta Web result viewer. Production databases remain external and explicitly selected."
+
+[upstream]
+name = "Bakta"
+type = "github"
+repo = "oschwengers/bakta"
+homepage = "https://bakta.readthedocs.io/"
+release_url = "https://github.com/oschwengers/bakta/releases/tag/v1.12.2"
+downloads = "https://codeload.github.com/oschwengers/bakta/tar.gz/refs/tags/v1.12.2; docker://oschwengers/bakta:v1.12.0@sha256:4cb7c3f8327483d661013b5bcbb33f0dc71119d661c4c887ec1dce6d81542c60; https://conda.anaconda.org/bioconda/linux-64/diamond-2.2.0-he361c42_0.conda; https://files.pythonhosted.org/packages/a3/dc/17031897dae0efacfea57dfd3a82fdd2a2aeb58e0ff71b77b87e44edc772/setuptools-80.9.0-py3-none-any.whl; https://files.pythonhosted.org/packages/0b/2c/87f3254fd8ffd29e4c02732eee68a83a1d3c346ae39bc6822dcbcb697f2b/wheel-0.45.1-py3-none-any.whl"
+version = "1.12.2"
+commit = "18be6c2b75d6ef708da4a1edf1dd37dbdd899b12"
+license = "GPL-3.0"
+citation = "Schwengers et al. 2021"
+doi = "10.1099/mgen.0.000685"
+watch = "tags"
+strip_prefix = "v"
+
+[smoke]
+backend = "docker"
+timeout = 300
+exist = ["bakta", "bakta_db", "bakta_proteins", "bakta_plot", "bakta_io", "python3", "diamond", "blastn", "makeblastdb", "amrfinder", "amrfinder_update", "amrfinder_index", "tRNAscan-SE", "aragorn", "cmscan", "cmpress", "pilercr", "bakta-download-db-6.0", "bakta-viewer", "bakta-smoke"]
+test = ["bakta-smoke identity", "bakta-smoke dependencies", "bakta-smoke core", "bakta-smoke meta", "bakta-smoke negative", "bakta-smoke resources", "bakta-smoke viewer"]
